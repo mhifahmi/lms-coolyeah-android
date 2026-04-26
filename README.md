@@ -10,6 +10,9 @@ Aplikasi *mobile* berbasis Android (Kotlin & XML) yang dikembangkan untuk memenu
 - **Dynamic Multi-Role Dashboard:** Memiliki 2 *role* berbeda (Admin & Karyawan). Tampilan komponen UI seperti, *Button*, dan *Table* di dalam satu *layout* Dashboard akan otomatis menyesuaikan (*hide/show*) berdasarkan *role* yang sedang login.
 - **Modern Material UI:** Antarmuka dibangun menggunakan komponen standar industri dari `Google Material Design` (`TextInputLayout`, `MaterialButton`) serta `TableLayout` untuk menampilkan data tabular yang responsif.
 - **Navigation & Backstack Management:** Fungsionalitas *Logout* yang aman dengan menerapkan pembersihan riwayat aktivitas (`Intent.FLAG_ACTIVITY_CLEAR_TASK`), mencegah pengguna kembali ke halaman *dashboard* menggunakan tombol *back* *smartphone* setelah *logout*.
+- **Form Pengajuan Cuti (3rd Activity):** Halaman khusus pengajuan cuti yang dilengkapi dengan *Dropdown* (AutoCompleteTextView) dan validasi kalender (*DatePickerDialog*).
+- **Validasi Tanggal Pintar:** Implementasi `minDate` pada kalender sehingga pengguna tidak bisa memilih tanggal di masa lalu (sebelum hari ini), dan tanggal selesai tidak bisa kurang dari tanggal mulai.
+- **Navigation Flow:** Alur perpindahan antar 3 halaman (Login -> Dashboard -> Form) menggunakan `Intent` dan penanganan *backstack* saat *logout*.
 
 ## Struktur Hak Akses (2 Roles)
 Sistem ini membagi pengguna ke dalam 2 tingkatan *role* utama dengan visibilitas komponen *dashboard* sebagai berikut:
@@ -45,7 +48,7 @@ Karena versi ini belum menggunakan *database* eksternal, pengecekan kredensial d
 * **Password:** `user123`
 
 ---
-*Dibuat untuk memenuhi Tugas I - Pemrograman Mobile I.*
+*Dibuat untuk memenuhi UTS - Pemrograman Mobile I.*
 
 **Nama:** Mochamad Hilman Fahmi
 **NIM:** 24552011058

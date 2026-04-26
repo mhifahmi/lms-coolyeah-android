@@ -24,6 +24,8 @@ class DashboardActivity : AppCompatActivity() {
         val layoutKaryawan = findViewById<LinearLayout>(R.id.layoutKaryawan)
         val layoutAdmin = findViewById<LinearLayout>(R.id.layoutAdmin)
 
+        val btnAjukanCuti = findViewById<MaterialButton>(R.id.btnAjukanCuti)
+
         tvWelcome.text = "Halo, $userName!"
         tvRoleBadge.text = "Role: $userRole"
 
@@ -33,6 +35,11 @@ class DashboardActivity : AppCompatActivity() {
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()
+        }
+
+        btnAjukanCuti.setOnClickListener {
+            val intent = Intent(this, FormCutiActivity::class.java)
+            startActivity(intent)
         }
 
         if (userRole == "ADMIN") {

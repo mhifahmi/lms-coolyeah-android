@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/tvTitleForm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Form Pengajuan Cuti"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#00796B"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="24dp"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilJenisCuti"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:hint="Jenis Cuti"
+        app:layout_constraintTop_toBottomOf="@id/tvTitleForm">
+
+        <AutoCompleteTextView
+            android:id="@+id/actvJenisCuti"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilTanggalMulai"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Tanggal Mulai"
+        app:layout_constraintTop_toBottomOf="@id/tilJenisCuti">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etTanggalMulai"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:inputType="none"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilTanggalSelesai"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Tanggal Selesai"
+        app:layout_constraintTop_toBottomOf="@id/tilTanggalMulai">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etTanggalSelesai"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:inputType="none"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilAlasan"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Alasan Cuti"
+        app:layout_constraintTop_toBottomOf="@id/tilTanggalSelesai">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etAlasan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="3"
+            android:gravity="top|start"
+            android:inputType="textMultiLine" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnKirimPengajuan"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="Kirim Pengajuan"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:backgroundTint="#00796B"
+        app:cornerRadius="8dp"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
