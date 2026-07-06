@@ -6,87 +6,174 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import com.mhifahmi.lmscoolyeah.data.remote.response.LeaveType
+import com.mhifahmi.lmscoolyeah.data.repository.AuthRepository
+import com.mhifahmi.lmscoolyeah.data.repository.LeaveRepository
+import com.mhifahmi.lmscoolyeah.utils.SessionManager
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class FormCutiActivity : AppCompatActivity() {
+
+    private lateinit var repository: LeaveRepository
+
+    private lateinit var sessionManager: SessionManager
+
+    private var leaveTypes = listOf<LeaveType>()
+
+    private var selectedLeaveType: LeaveType? = null
+
+    private lateinit var actvJenisCuti: AutoCompleteTextView
+    private lateinit var etTanggalMulai: TextInputEditText
+    private lateinit var etTanggalSelesai: TextInputEditText
+    private lateinit var etAlasan: TextInputEditText
+    private lateinit var btnKirim: MaterialButton
+
+    private var tanggalMulaiMillis = 0L
+
+    // format yyyy-MM-dd
+    private var startDateApi = ""
+
+    private var endDateApi = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_form_cuti)
 
-        val actvJenisCuti = findViewById<AutoCompleteTextView>(R.id.actvJenisCuti)
-        val etTanggalMulai = findViewById<TextInputEditText>(R.id.etTanggalMulai)
-        val etTanggalSelesai = findViewById<TextInputEditText>(R.id.etTanggalSelesai)
+        repository = LeaveRepository(this)
+
+        actvJenisCuti = findViewById<AutoCompleteTextView>(R.id.actvJenisCuti)
+        etTanggalMulai = findViewById<TextInputEditText>(R.id.etTanggalMulai)
+        etTanggalSelesai = findViewById<TextInputEditText>(R.id.etTanggalSelesai)
         etTanggalSelesai.isEnabled = false
-        val etAlasan = findViewById<TextInputEditText>(R.id.etAlasan)
-        val btnKirim = findViewById<MaterialButton>(R.id.btnKirimPengajuan)
+        etAlasan = findViewById<TextInputEditText>(R.id.etAlasan)
+        btnKirim = findViewById<MaterialButton>(R.id.btnKirimPengajuan)
 
-        val pilihanCuti = arrayOf("Cuti Tahunan", "Cuti Sakit", "Cuti Melahirkan", "Cuti Penting")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, pilihanCuti)
-        actvJenisCuti.setAdapter(adapter)
-
-        var tanggalMulaiMillis: Long = 0
+        sessionManager = SessionManager(this)
+        actvJenisCuti.keyListener = null
+        loadLeaveTypes()
 
         etTanggalMulai.setOnClickListener {
             val calendar = Calendar.getInstance()
-            val datePickerDialog = DatePickerDialog(this, { _, year, month, day ->
-                val selectedCalendar = Calendar.getInstance()
-                selectedCalendar.set(year, month, day)
+            val dialog = DatePickerDialog(this, { _, year, month, day ->
+                    val selected = Calendar.getInstance()
+                    selected.set(year, month, day)
+                    tanggalMulaiMillis = selected.timeInMillis
 
-                tanggalMulaiMillis = selectedCalendar.timeInMillis
+                    val monthValue = month + 1
+                    startDateApi = String.format("%04d-%02d-%02d",
+                        year,
+                        monthValue,
+                        day
+                    )
 
-                val formattedDate = "$day/${month + 1}/$year"
-                etTanggalMulai.setText(formattedDate)
+                    val displayDate = "$day/$monthValue/$year"
+                    etTanggalMulai.setText(displayDate)
+                    etTanggalSelesai.isEnabled = true
+                    endDateApi = startDateApi
+                    etTanggalSelesai.setText(displayDate)
+                },
 
-                etTanggalSelesai.isEnabled = true
-                etTanggalSelesai.setText("")
-            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            )
 
-            datePickerDialog.datePicker.minDate = System.currentTimeMillis()
-            datePickerDialog.show()
+            dialog.datePicker.minDate = System.currentTimeMillis()
+            dialog.show()
         }
 
         etTanggalSelesai.setOnClickListener {
             val calendar = Calendar.getInstance()
-            val datePickerDialog = DatePickerDialog(this, { _, year, month, day ->
-                val formattedDate = "$day/${month + 1}/$year"
-                etTanggalSelesai.setText(formattedDate)
-            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
+            val dialog = DatePickerDialog(this, { _, year, month, day ->
+                    val monthValue = month + 1
+                    endDateApi = String.format("%04d-%02d-%02d",
+                        year,
+                        monthValue,
+                        day
+                    )
 
-            datePickerDialog.datePicker.minDate = tanggalMulaiMillis
-            datePickerDialog.show()
+                    val displayDate = "$day/$monthValue/$year"
+                    etTanggalSelesai.setText(displayDate)
+                },
+
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            )
+
+            dialog.datePicker.minDate = tanggalMulaiMillis
+            dialog.show()
         }
 
         btnKirim.setOnClickListener {
-            val jenis = actvJenisCuti.text.toString()
-            val mulai = etTanggalMulai.text.toString()
-            val selesai = etTanggalSelesai.text.toString()
-            val alasan = etAlasan.text.toString().trim()
-
-            if (jenis.isEmpty() || mulai.isEmpty() || selesai.isEmpty() || alasan.isEmpty()) {
-                Toast.makeText(this, "Harap lengkapi semua data!", Toast.LENGTH_SHORT).show()
+            if (selectedLeaveType == null) {
+                Toast.makeText(
+                    this,
+                    "Silakan pilih jenis cuti",
+                    Toast.LENGTH_SHORT
+                ).show()
                 return@setOnClickListener
             }
 
-            Toast.makeText(this, "Pengajuan $jenis berhasil dikirim!", Toast.LENGTH_LONG).show()
+            val alasan = etAlasan.text.toString().trim()
 
-            finish()
+            if (startDateApi.isBlank() || endDateApi.isBlank() || alasan.isBlank()) {
+                Toast.makeText(
+                    this,
+                    "Harap lengkapi semua data",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                return@setOnClickListener
+            }
+
+            Toast.makeText(
+                this,
+                """
+                    leave_type_id = ${selectedLeaveType!!.id}
+                    start_date = $startDateApi
+                    end_date = $endDateApi
+                    reason = $alasan
+                """.trimIndent(),
+
+                Toast.LENGTH_LONG
+            ).show()
+        }
+
+        actvJenisCuti.setOnItemClickListener {_, _, position, _ ->
+            selectedLeaveType = leaveTypes[position]
         }
     }
 
-    private fun showDatePicker(editText: TextInputEditText) {
-        val calendar = Calendar.getInstance()
-        val year = calendar.get(Calendar.YEAR)
-        val month = calendar.get(Calendar.MONTH)
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
+    private fun loadLeaveTypes() {
+        btnKirim.isEnabled = false
+        lifecycleScope.launch {
+            repository.getLeaveTypes()
+                .onSuccess {
+                    leaveTypes = it
+                    val adapter = ArrayAdapter(
+                        this@FormCutiActivity,
+                        android.R.layout.simple_dropdown_item_1line,
+                        leaveTypes.map { leave ->
+                            leave.name
+                        }
+                    )
+                    actvJenisCuti.setAdapter(adapter)
+                    btnKirim.isEnabled = true
+                }
 
-        val datePickerDialog = DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
-            val formattedDate = "$selectedDay/${selectedMonth + 1}/$selectedYear"
-            editText.setText(formattedDate)
-        }, year, month, day)
-
-        datePickerDialog.show()
+                .onFailure {
+                    Toast.makeText(
+                        this@FormCutiActivity,
+                        it.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                    btnKirim.isEnabled = true
+                }
+        }
     }
 }

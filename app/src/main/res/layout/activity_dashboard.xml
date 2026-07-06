@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F5F5F5">
@@ -94,7 +95,7 @@
                             android:padding="16dp"
                             android:gravity="center">
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tahun Ini" android:textSize="12sp"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="12" android:textSize="24sp" android:textStyle="bold" android:textColor="#00796B"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:id="@+id/tvAnnualRemaining" android:textSize="24sp" android:textStyle="bold" android:textColor="#00796B"/>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
@@ -113,7 +114,7 @@
                             android:padding="16dp"
                             android:gravity="center">
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Lintas Tahun" android:textSize="12sp"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3" android:textSize="24sp" android:textStyle="bold" android:textColor="#00796B"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:id="@+id/tvCarryOverRemaining" android:textSize="24sp" android:textStyle="bold" android:textColor="#00796B"/>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
@@ -134,33 +135,26 @@
                     android:layout_marginTop="24dp"
                     android:layout_marginBottom="8dp"/>
 
-                <TableLayout
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvRecentLeave"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:stretchColumns="1"
-                    android:background="#FFFFFF"
-                    android:padding="8dp">
-                    <TableRow android:background="#E0E0E0" android:padding="8dp">
-                        <TextView android:text="Tgl" android:textStyle="bold" android:paddingEnd="16dp"/>
-                        <TextView android:text="Jenis" android:textStyle="bold"/>
-                        <TextView android:text="Status" android:textStyle="bold" android:textColor="#000000"/>
-                    </TableRow>
-                    <TableRow android:padding="8dp">
-                        <TextView android:text="12/03"/>
-                        <TextView android:text="Tahunan"/>
-                        <TextView android:text="Disetujui" android:textColor="#388E3C"/>
-                    </TableRow>
-                    <TableRow android:padding="8dp">
-                        <TextView android:text="20/02"/>
-                        <TextView android:text="Sakit"/>
-                        <TextView android:text="Disetujui" android:textColor="#388E3C"/>
-                    </TableRow>
-                    <TableRow android:padding="8dp">
-                        <TextView android:text="05/01"/>
-                        <TextView android:text="Tahunan"/>
-                        <TextView android:text="Ditolak" android:textColor="#D32F2F"/>
-                    </TableRow>
-                </TableLayout>
+                    android:nestedScrollingEnabled="false"
+                    tools:listitem="@layout/item_recent_leave"/>
+                <TextView
+                    android:id="@+id/tvEmptyRecentLeave"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Belum ada riwayat pengajuan cuti."
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:visibility="gone"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnHistory"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Lihat Semua Riwayat"/>
             </LinearLayout>
 
             <LinearLayout
@@ -170,32 +164,182 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        app:cardBackgroundColor="#FFFFFF"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="2dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:text="Employee"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"/>
+
+                            <TextView
+                                android:id="@+id/tvTotalEmployee"
+                                android:text="0"
+                                android:textSize="24sp"
+                                android:textStyle="bold"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"/>
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        app:cardBackgroundColor="#FFFFFF"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="2dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:text="Pending"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"/>
+
+                            <TextView
+                                android:id="@+id/tvPendingRequest"
+                                android:text="0"
+                                android:textSize="24sp"
+                                android:textStyle="bold"
+                                android:textColor="#F9A825"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"/>
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        app:cardBackgroundColor="#FFFFFF"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="2dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Approved"/>
+
+                            <TextView
+                                android:id="@+id/tvApprovedRequest"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textSize="24sp"
+                                android:textStyle="bold"
+                                android:textColor="#2E7D32"/>
+
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        app:cardBackgroundColor="#FFFFFF"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="2dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Rejected"/>
+
+                            <TextView
+                                android:id="@+id/tvRejectedRequest"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textSize="24sp"
+                                android:textStyle="bold"
+                                android:textColor="#D32F2F"/>
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Menunggu Approval (2)"
-                    android:textStyle="bold"
-                    android:textColor="#D32F2F"
-                    android:layout_marginBottom="8dp"/>
-                <TableLayout
+                    android:layout_marginTop="24dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="Approval Terbaru"
+                    android:textStyle="bold"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvRecentApproval"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:stretchColumns="0"
-                    android:background="#FFFFFF"
-                    android:padding="8dp">
-                    <TableRow android:background="#FFCDD2" android:padding="8dp">
-                        <TextView android:text="Nama" android:textStyle="bold"/>
-                        <TextView android:text="Durasi" android:textStyle="bold"/>
-                    </TableRow>
-                    <TableRow android:padding="8dp">
-                        <TextView android:text="Budi (IT)"/>
-                        <TextView android:text="2 Hari"/>
-                    </TableRow>
-                    <TableRow android:padding="8dp">
-                        <TextView android:text="Siti (HR)"/>
-                        <TextView android:text="1 Hari"/>
-                    </TableRow>
-                </TableLayout>
+                    android:nestedScrollingEnabled="false"
+                    android:overScrollMode="never"
+                    tools:listitem="@layout/item_recent_approval"/>
+
+                <TextView
+                    android:id="@+id/tvEmptyRecentApproval"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:text="Belum ada approval terbaru."
+                    android:visibility="gone"/>
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLihatSemuaApproval"
                     style="@style/Widget.MaterialComponents.Button.TextButton"
@@ -203,32 +347,6 @@
                     android:layout_height="wrap_content"
                     android:text="Lihat Semua Approval"/>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Riwayat Cuti Karyawan Terbaru"
-                    android:textStyle="bold"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="8dp"/>
-                <TableLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:stretchColumns="0"
-                    android:background="#FFFFFF"
-                    android:padding="8dp">
-                    <TableRow android:background="#E0E0E0" android:padding="8dp">
-                        <TextView android:text="Nama" android:textStyle="bold"/>
-                        <TextView android:text="Status" android:textStyle="bold"/>
-                    </TableRow>
-                    <TableRow android:padding="8dp">
-                        <TextView android:text="Andi (Finance)"/>
-                        <TextView android:text="Selesai" android:textColor="#388E3C"/>
-                    </TableRow>
-                    <TableRow android:padding="8dp">
-                        <TextView android:text="Joko (Ops)"/>
-                        <TextView android:text="Ditolak" android:textColor="#D32F2F"/>
-                    </TableRow>
-                </TableLayout>
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLihatSemuaRiwayat"
                     style="@style/Widget.MaterialComponents.Button.TextButton"
