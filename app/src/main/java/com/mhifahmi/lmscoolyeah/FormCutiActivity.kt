@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import com.mhifahmi.lmscoolyeah.data.remote.request.CreateLeaveRequest
 import com.mhifahmi.lmscoolyeah.data.remote.response.LeaveType
 import com.mhifahmi.lmscoolyeah.data.repository.AuthRepository
 import com.mhifahmi.lmscoolyeah.data.repository.LeaveRepository
@@ -131,17 +132,54 @@ class FormCutiActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            Toast.makeText(
-                this,
-                """
-                    leave_type_id = ${selectedLeaveType!!.id}
-                    start_date = $startDateApi
-                    end_date = $endDateApi
-                    reason = $alasan
-                """.trimIndent(),
+            val request = CreateLeaveRequest(
 
-                Toast.LENGTH_LONG
-            ).show()
+                leaveTypeId = selectedLeaveType!!.id,
+
+                startDate = startDateApi,
+
+                endDate = endDateApi,
+
+                reason = alasan
+
+            )
+
+            lifecycleScope.launch {
+
+                repository
+                    .createLeave(request)
+                    .onSuccess {
+
+                        Toast.makeText(
+
+                            this@FormCutiActivity,
+
+                            "Pengajuan cuti berhasil",
+
+                            Toast.LENGTH_LONG
+
+                        ).show()
+
+                        setResult(RESULT_OK)
+
+                        finish()
+
+                    }
+                    .onFailure {
+
+                        Toast.makeText(
+
+                            this@FormCutiActivity,
+
+                            it.message,
+
+                            Toast.LENGTH_LONG
+
+                        ).show()
+
+                    }
+
+            }
         }
 
         actvJenisCuti.setOnItemClickListener {_, _, position, _ ->

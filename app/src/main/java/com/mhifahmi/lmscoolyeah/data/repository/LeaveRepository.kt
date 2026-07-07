@@ -2,7 +2,11 @@ package com.mhifahmi.lmscoolyeah.data.repository
 
 import android.content.Context
 import com.mhifahmi.lmscoolyeah.data.remote.request.ApproveLeaveRequest
+import com.mhifahmi.lmscoolyeah.data.remote.request.CreateEmployeeRequest
+import com.mhifahmi.lmscoolyeah.data.remote.request.CreateLeaveRequest
 import com.mhifahmi.lmscoolyeah.data.remote.request.RejectLeaveRequest
+import com.mhifahmi.lmscoolyeah.data.remote.response.CreateEmployeeResponse
+import com.mhifahmi.lmscoolyeah.data.remote.response.CreateLeaveResponse
 import com.mhifahmi.lmscoolyeah.data.remote.response.LeaveDetail
 import com.mhifahmi.lmscoolyeah.data.remote.response.LeaveType
 import com.mhifahmi.lmscoolyeah.data.remote.response.RecentApproval
@@ -167,6 +171,45 @@ class LeaveRepository(context: Context){
             Result.success(
                 response.data
             )
+
+        } catch (e: Exception) {
+
+            Result.failure(e)
+
+        }
+
+    }
+
+    suspend fun createLeave(
+        request: CreateLeaveRequest
+    ): Result<CreateLeaveResponse> {
+
+        return try {
+
+            val response =
+                api.createLeave(request)
+
+            if (
+                response.isSuccessful &&
+                response.body() != null
+            ) {
+
+                Result.success(
+                    response.body()!!.data
+                )
+
+            } else {
+
+                Result.failure(
+
+                    Exception(
+                        response.body()?.message
+                            ?: response.message()
+                    )
+
+                )
+
+            }
 
         } catch (e: Exception) {
 

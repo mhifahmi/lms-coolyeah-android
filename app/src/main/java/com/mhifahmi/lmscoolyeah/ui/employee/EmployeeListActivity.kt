@@ -29,18 +29,19 @@ class EmployeeListActivity : AppCompatActivity() {
 
     private lateinit var tvEmpty: TextView
 
+    private lateinit var toolbar: MaterialToolbar
+
     override fun onCreate(
         savedInstanceState: Bundle?
     ) {
 
         super.onCreate(savedInstanceState)
 
-        repository = EmployeeRepository(this)
-        tvEmpty = findViewById(R.id.tvEmpty)
-
         setContentView(
             R.layout.activity_employee_list
         )
+
+        repository = EmployeeRepository(this)
 
         initView()
 
@@ -48,16 +49,11 @@ class EmployeeListActivity : AppCompatActivity() {
 
         setupClickListener()
 
-        findViewById<MaterialToolbar>(R.id.toolbar)
-            .setNavigationOnClickListener {
-
-                finish()
-
-            }
+        toolbar.setNavigationOnClickListener {
+            finish()
+        }
 
         setupRecyclerView()
-
-        setupClickListener()
 
         loadData()
     }
@@ -70,6 +66,9 @@ class EmployeeListActivity : AppCompatActivity() {
         fabAdd =
             findViewById(R.id.fabAddEmployee)
 
+        tvEmpty = findViewById(R.id.tvEmpty)
+
+        toolbar = findViewById(R.id.toolbar)
     }
 
     private fun setupRecyclerView() {
@@ -79,7 +78,17 @@ class EmployeeListActivity : AppCompatActivity() {
                 mutableListOf()
             ) { employee ->
 
-                // nanti menuju Detail Employee
+                val intent = Intent(
+                    this,
+                    EmployeeDetailActivity::class.java
+                )
+
+                intent.putExtra(
+                    "EMPLOYEE_ID",
+                    employee.id
+                )
+
+                startActivity(intent)
 
             }
 

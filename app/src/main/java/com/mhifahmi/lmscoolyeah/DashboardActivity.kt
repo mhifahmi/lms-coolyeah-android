@@ -190,12 +190,16 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         btnAjukanCuti.setOnClickListener {
-            startActivity(
+
+            refreshLauncher.launch(
+
                 Intent(
                     this,
                     FormCutiActivity::class.java
                 )
+
             )
+
         }
 
         btnLihatSemuaApproval.setOnClickListener {

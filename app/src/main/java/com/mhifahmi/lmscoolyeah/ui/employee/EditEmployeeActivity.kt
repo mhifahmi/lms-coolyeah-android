@@ -12,7 +12,9 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.mhifahmi.lmscoolyeah.R
 import com.mhifahmi.lmscoolyeah.data.remote.request.CreateEmployeeRequest
+import com.mhifahmi.lmscoolyeah.data.remote.request.UpdateEmployeeRequest
 import com.mhifahmi.lmscoolyeah.data.remote.response.DepartmentItem
+import com.mhifahmi.lmscoolyeah.data.remote.response.EmployeeDetail
 import com.mhifahmi.lmscoolyeah.data.remote.response.PositionItem
 import com.mhifahmi.lmscoolyeah.data.repository.EmployeeRepository
 import kotlinx.coroutines.launch
@@ -20,12 +22,15 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-class CreateEmployeeActivity : AppCompatActivity() {
+class EditEmployeeActivity : AppCompatActivity() {
+
+    private lateinit var repository: EmployeeRepository
+
+    private var employeeId: Long = 0
 
     private lateinit var toolbar: MaterialToolbar
 
     private lateinit var etUsername: TextInputEditText
-    private lateinit var etPassword: TextInputEditText
     private lateinit var etFullName: TextInputEditText
     private lateinit var etEmail: TextInputEditText
     private lateinit var etPhone: TextInputEditText
@@ -38,20 +43,15 @@ class CreateEmployeeActivity : AppCompatActivity() {
 
     private lateinit var btnSave: MaterialButton
 
-    private lateinit var repository: EmployeeRepository
-
     private var departments =
         emptyList<DepartmentItem>()
 
     private var positions =
         emptyList<PositionItem>()
 
-    private var selectedDepartmentId: Long? =
-        null
+    private var selectedDepartmentId: Long? = null
 
-    private var selectedPositionId: Long? =
-        null
-
+    private var selectedPositionId: Long? = null
     override fun onCreate(
         savedInstanceState: Bundle?
     ) {
@@ -59,21 +59,27 @@ class CreateEmployeeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(
-            R.layout.activity_create_employee
+            R.layout.activity_edit_employee
         )
 
         repository =
             EmployeeRepository(this)
 
+        employeeId =
+            intent.getLongExtra(
+                "EMPLOYEE_ID",
+                0
+            )
+
         initView()
 
         setupToolbar()
 
+        setupClickListener()
+
         loadDepartments()
 
         loadPositions()
-
-        setupClickListener()
 
     }
 
@@ -82,7 +88,6 @@ class CreateEmployeeActivity : AppCompatActivity() {
         toolbar = findViewById(R.id.toolbar)
 
         etUsername = findViewById(R.id.etUsername)
-        etPassword = findViewById(R.id.etPassword)
 
         etFullName = findViewById(R.id.etFullName)
         etEmail = findViewById(R.id.etEmail)
@@ -126,13 +131,6 @@ class CreateEmployeeActivity : AppCompatActivity() {
 
         }
 
-
-        btnSave.setOnClickListener {
-
-            saveEmployee()
-
-        }
-
         actDepartment.setOnItemClickListener {
 
                 _,
@@ -156,235 +154,70 @@ class CreateEmployeeActivity : AppCompatActivity() {
                 positions[position].id
 
         }
+
+        btnSave.setOnClickListener {
+
+            updateEmployee()
+
+        }
+
     }
 
-    private fun saveEmployee() {
+    private fun updateEmployee() {
 
-        val username =
-            etUsername.text
-                ?.toString()
-                ?.trim()
-                .orEmpty()
-
-        val password =
-            etPassword.text
-                ?.toString()
-                ?.trim()
-                .orEmpty()
-
-        val fullName =
-            etFullName.text
-                ?.toString()
-                ?.trim()
-                .orEmpty()
-
-        val email =
-            etEmail.text
-                ?.toString()
-                ?.trim()
-                .orEmpty()
-
-        val phone =
-            etPhone.text
-                ?.toString()
-                ?.trim()
-                .orEmpty()
-
-        val birthDate =
-            etBirthDate.text
-                ?.toString()
-                ?.trim()
-                .orEmpty()
-
-        val hireDate =
-            etHireDate.text
-                ?.toString()
-                ?.trim()
-                .orEmpty()
-
-        if (username.isBlank()) {
-            Toast.makeText(
-
-                this,
-
-                "Username wajib diisi",
-
-                Toast.LENGTH_LONG
-
-            ).show()
-            etUsername.error = "Username wajib diisi"
+        if (!validateForm()) {
             return
-
         }
 
-        if (password.length < 8) {
-            Toast.makeText(
+        val request = UpdateEmployeeRequest(
 
-                this,
+            username =
+                etUsername.text.toString().trim(),
 
-                "Password minimal 8 karakter",
+            full_name =
+                etFullName.text.toString().trim(),
 
-                Toast.LENGTH_LONG
+            email =
+                etEmail.text.toString().trim(),
 
-            ).show()
-            etPassword.error =
-                "Password minimal 8 karakter"
+            phone =
+                etPhone.text.toString().trim(),
 
-            return
-
-        }
-
-        if (fullName.isBlank()) {
-            Toast.makeText(
-
-                this,
-
-                "Nama wajib diisi",
-
-                Toast.LENGTH_LONG
-
-            ).show()
-            etFullName.error =
-                "Nama wajib diisi"
-
-            return
-
-        }
-
-        if (email.isBlank()) {
-
-            Toast.makeText(
-
-                this,
-
-                "Email wajib diisi",
-
-                Toast.LENGTH_LONG
-
-            ).show()
-
-            etEmail.error =
-                "Email wajib diisi"
-
-            return
-
-        }
-
-        if (phone.isBlank()) {
-
-            Toast.makeText(
-
-                this,
-
-                "Nomor HP wajib diisi",
-
-                Toast.LENGTH_LONG
-
-            ).show()
-
-            etPhone.error =
-                "Nomor HP wajib diisi"
-
-            return
-
-        }
-
-        if (hireDate.isBlank()) {
-            Toast.makeText(
-
-                this,
-
-                "Tanggal bergabung wajib diisi",
-
-                Toast.LENGTH_LONG
-
-            ).show()
-
-            etHireDate.error =
-                "Tanggal bergabung wajib diisi"
-
-            return
-
-        }
-
-        if (selectedDepartmentId == null) {
-
-            Toast.makeText(
-
-                this,
-
-                "Pilih Department",
-
-                Toast.LENGTH_LONG
-
-            ).show()
-
-            return
-
-        }
-
-        if (selectedPositionId == null) {
-
-            Toast.makeText(
-
-                this,
-
-                "Pilih Position",
-
-                Toast.LENGTH_LONG
-
-            ).show()
-
-            return
-
-        }
-
-        Toast.makeText(
-            this,
-            "Save ditekan",
-            Toast.LENGTH_SHORT
-        ).show()
-
-        val request =
-
-            CreateEmployeeRequest(
-
-                username = username,
-
-                password = password,
-
-                full_name = fullName,
-
-                email = email,
-
-                phone = phone,
-
-                birth_date =
-                    birthDate.ifBlank {
+            birth_date =
+                etBirthDate.text
+                    .toString()
+                    .trim()
+                    .ifBlank {
                         null
                     },
 
-                hire_date = hireDate,
+            hire_date =
+                etHireDate.text
+                    .toString()
+                    .trim(),
 
-                department_id =
-                    selectedDepartmentId!!,
+            department_id =
+                selectedDepartmentId!!,
 
-                position_id =
-                    selectedPositionId!!
+            position_id =
+                selectedPositionId!!
 
-            )
+        )
 
         lifecycleScope.launch {
 
             repository
-                .createEmployee(request)
+                .updateEmployee(
+                    employeeId,
+                    request
+                )
                 .onSuccess {
 
                     Toast.makeText(
 
-                        this@CreateEmployeeActivity,
+                        this@EditEmployeeActivity,
 
-                        "Employee berhasil dibuat",
+                        "Data karyawan berhasil diperbarui",
 
                         Toast.LENGTH_LONG
 
@@ -401,7 +234,7 @@ class CreateEmployeeActivity : AppCompatActivity() {
 
                     Toast.makeText(
 
-                        this@CreateEmployeeActivity,
+                        this@EditEmployeeActivity,
 
                         it.message,
 
@@ -425,28 +258,31 @@ class CreateEmployeeActivity : AppCompatActivity() {
 
                     departments = it
 
-                    val adapter = ArrayAdapter(
+                    val adapter =
+                        ArrayAdapter(
 
-                        this@CreateEmployeeActivity,
+                            this@EditEmployeeActivity,
 
-                        android.R.layout.simple_dropdown_item_1line,
+                            android.R.layout.simple_dropdown_item_1line,
 
-                        departments.map { item ->
-                            item.name
-                        }
+                            departments.map { item ->
+                                item.name
+                            }
 
-                    )
+                        )
 
                     actDepartment.setAdapter(
                         adapter
                     )
+
+                    loadEmployee()
 
                 }
                 .onFailure {
 
                     Toast.makeText(
 
-                        this@CreateEmployeeActivity,
+                        this@EditEmployeeActivity,
 
                         it.message,
 
@@ -470,17 +306,18 @@ class CreateEmployeeActivity : AppCompatActivity() {
 
                     positions = it
 
-                    val adapter = ArrayAdapter(
+                    val adapter =
+                        ArrayAdapter(
 
-                        this@CreateEmployeeActivity,
+                            this@EditEmployeeActivity,
 
-                        android.R.layout.simple_dropdown_item_1line,
+                            android.R.layout.simple_dropdown_item_1line,
 
-                        positions.map { item ->
-                            item.name
-                        }
+                            positions.map { item ->
+                                item.name
+                            }
 
-                    )
+                        )
 
                     actPosition.setAdapter(
                         adapter
@@ -491,7 +328,7 @@ class CreateEmployeeActivity : AppCompatActivity() {
 
                     Toast.makeText(
 
-                        this@CreateEmployeeActivity,
+                        this@EditEmployeeActivity,
 
                         it.message,
 
@@ -522,30 +359,21 @@ class CreateEmployeeActivity : AppCompatActivity() {
               day ->
 
                 calendar.set(
-
                     year,
                     month,
                     day
-
                 )
 
                 val formatter =
                     SimpleDateFormat(
-
                         "yyyy-MM-dd",
-
                         Locale.getDefault()
-
                     )
 
                 editText.setText(
-
                     formatter.format(
-
                         calendar.time
-
                     )
-
                 )
 
             },
@@ -560,5 +388,196 @@ class CreateEmployeeActivity : AppCompatActivity() {
 
     }
 
+    private fun loadEmployee() {
+
+        lifecycleScope.launch {
+
+            repository
+                .getEmployeeDetail(employeeId)
+                .onSuccess {
+
+                    bindEmployee(it)
+
+                }
+                .onFailure {
+
+                    Toast.makeText(
+
+                        this@EditEmployeeActivity,
+
+                        it.message,
+
+                        Toast.LENGTH_LONG
+
+                    ).show()
+
+                }
+
+        }
+
+    }
+
+    private fun bindEmployee(
+        employee: EmployeeDetail
+    ) {
+
+        etUsername.setText(
+            employee.username
+        )
+
+        etFullName.setText(
+            employee.fullName
+        )
+
+        etEmail.setText(
+            employee.email
+        )
+
+        etPhone.setText(
+            employee.phone
+        )
+
+        etBirthDate.setText(
+            employee.birthDate ?: ""
+        )
+
+        etHireDate.setText(
+            employee.hireDate
+        )
+
+        //---------------------------------------
+        // Department
+        //---------------------------------------
+
+        selectedDepartmentId =
+            employee.departmentId
+
+        actDepartment.setText(
+
+            employee.departmentName,
+
+            false
+
+        )
+
+        //---------------------------------------
+        // Position
+        //---------------------------------------
+
+        selectedPositionId =
+            employee.positionId
+
+        actPosition.setText(
+
+            employee.positionName,
+
+            false
+
+        )
+
+    }
+
+    private fun validateForm(): Boolean {
+
+        if (
+            etUsername.text
+                .toString()
+                .isBlank()
+        ) {
+
+            etUsername.error =
+                "Username wajib diisi"
+
+            return false
+
+        }
+
+        if (
+            etFullName.text
+                .toString()
+                .isBlank()
+        ) {
+
+            etFullName.error =
+                "Nama wajib diisi"
+
+            return false
+
+        }
+
+        if (
+            etEmail.text
+                .toString()
+                .isBlank()
+        ) {
+
+            etEmail.error =
+                "Email wajib diisi"
+
+            return false
+
+        }
+
+        if (
+            etPhone.text
+                .toString()
+                .isBlank()
+        ) {
+
+            etPhone.error =
+                "Nomor HP wajib diisi"
+
+            return false
+
+        }
+
+        if (
+            etHireDate.text
+                .toString()
+                .isBlank()
+        ) {
+
+            etHireDate.error =
+                "Tanggal bergabung wajib diisi"
+
+            return false
+
+        }
+
+        if (selectedDepartmentId == null) {
+
+            Toast.makeText(
+
+                this,
+
+                "Pilih Department",
+
+                Toast.LENGTH_LONG
+
+            ).show()
+
+            return false
+
+        }
+
+        if (selectedPositionId == null) {
+
+            Toast.makeText(
+
+                this,
+
+                "Pilih Position",
+
+                Toast.LENGTH_LONG
+
+            ).show()
+
+            return false
+
+        }
+
+        return true
+
+    }
 
 }
